@@ -1,54 +1,82 @@
 // Created by Tau on 2019/01/01
 import 'package:http/http.dart' as http;
 import 'dart:io';
-
-import 'api.dart';
+import 'dart:convert';
+import 'net.dart';
 import 'auth.dart';
-import 'network_callback.dart';
 
 class Course {
   final String name, id, teacher, room;
   Map<int, int> _time; //key 1~7, value 1~5
   Map<int, int> get time => _time;
+
   Course.fromJson(Map json)
       : name = json['courseName'],
         id = json['courseId'],
         teacher = json['teacher'],
         room = json['room'] {
-    List<List<int>> time = json['time'];
-    for (var t in time) {
+    var time = json['time'];
+    _time = Map();
+    for (var tmp in time) {
       int section;
-      if (t[1] < 2) {
+      final t = int.parse(tmp[1]);
+      if (t < 2) {
         section = 1;
-      } else if (t[1] < 4) {
+      } else if (t < 4) {
         section = 2;
-      } else if (t[1] < 6) {
+      } else if (t < 6) {
         section = 3;
-      } else if (t[1] < 8) {
+      } else if (t < 8) {
         section = 4;
       } else {
         section = 5;
       }
-      _time[t[0] + 1] = section;
+      _time[int.parse(tmp[0]) + 1] = section;
     }
   }
-}
 
-const NoTokenCode = 1;
+  @override
+  String toString() {
+    return '{name: $name, id: $id, teacher: $teacher, room: $room, time: $time}';
+  }
+
+  @override
+  bool operator ==(other) {
+    return id == other.id;
+  }
+}
 
 Future<void> fetchCourses(Callback<List<Course>> courseCallback) async {
   courseCallback.onStart();
   final auth = await AuthManager.getInstance();
   final token = await auth.fetchToken();
   if (token.isEmpty) {
-    courseCallback.onFailed(NoTokenCode);//
+    courseCallback.onFailed(NoTokenCode);
     courseCallback.onFinish();
     return;
   }
+  var header = {
+    'Authorization': 'Bearer ' + token,
+  };
+  var postBody = {'year': '2018', 'semester': '2'};
   try {
-    
-  } on SocketException catch (_) {}
-  finally {
+    var response =
+        await http.post(API.courseUrl, headers: header, body: postBody);
+    if (response.statusCode != 200) {
+      courseCallback.onFailed(NetworkCode);
+    } else {
+      final body = json.decode(response.body);
+      if (body['code'] != 201)
+        courseCallback.onFailed(NetworkCode);
+      else {
+        var courseList = <Course>[];
+        for (var data in body['data']) {
+          courseList.add(Course.fromJson(data));
+        }
+        courseCallback.onSuccess(courseList);
+      }
+    }
+  } on SocketException catch (_) {} finally {
     courseCallback.onFinish();
   }
 }

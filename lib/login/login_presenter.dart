@@ -1,6 +1,6 @@
 import 'login_contract.dart';
 import 'package:uestc/data/auth.dart';
-import 'package:uestc/data/network_callback.dart';
+import 'package:uestc/data/net.dart';
 
 class LoginPresenter implements Presenter, Callback<String> {
   AuthManager _authManager;

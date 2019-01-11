@@ -39,7 +39,7 @@ class LoginViewState extends State<LoginView> implements View {
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
+    // _context = context;
     setPresenter(LoginPresenter(this));
     return Scaffold(
       key: _scaffoldKey,

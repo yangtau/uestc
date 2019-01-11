@@ -1,15 +1,9 @@
 // Created by Tau on 2018/12/30
 import 'package:shared_preferences/shared_preferences.dart';
-import 'api.dart';
+import 'net.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'network_callback.dart';
 import 'dart:io';
-
-const NoIdeaCode = -2; //:)
-const NetworkCode = -1;
-const PasswordCode = 403;
-const ValidationCode = 422;
 
 // a model used to login...
 class LoginMsg {
@@ -29,7 +23,7 @@ class AuthManager {
   SharedPreferences _prefs;
   String _id, _password;
 
-  AuthManager._internal() {}
+  AuthManager._internal() ;
   _init() async {
     _prefs = await SharedPreferences.getInstance();
     _token = '';
