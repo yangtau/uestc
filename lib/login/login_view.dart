@@ -27,6 +27,7 @@ class LoginViewState extends State<LoginView> implements View {
   final _idController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   // BuildContext _context;
 
   @override
@@ -40,7 +41,7 @@ class LoginViewState extends State<LoginView> implements View {
   @override
   Widget build(BuildContext context) {
     // _context = context;
-    setPresenter(LoginPresenter(this));
+    if (_presenter == null) setPresenter(LoginPresenter(this));
     return Scaffold(
       key: _scaffoldKey,
       appBar: null,
@@ -163,10 +164,10 @@ class LoginViewState extends State<LoginView> implements View {
   @override
   Future<void> setPresenter(Presenter presenter) async {
     _presenter = presenter;
-    await SystemChrome.setPreferredOrientations(
+    SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     //  await Future.delayed(Duration(milliseconds: 10), () =>_presenter.subscribe());
-    await _presenter.subscribe();
+    _presenter.subscribe();
   }
 
   @override

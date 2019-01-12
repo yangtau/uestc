@@ -14,26 +14,7 @@ class Course {
       : name = json['courseName'],
         id = json['courseId'],
         teacher = json['teacher'],
-        room = json['room'] {
-    var time = json['time'];
-    _time = Map();
-    for (var tmp in time) {
-      int section;
-      final t = int.parse(tmp[1]);
-      if (t < 2) {
-        section = 1;
-      } else if (t < 4) {
-        section = 2;
-      } else if (t < 6) {
-        section = 3;
-      } else if (t < 8) {
-        section = 4;
-      } else {
-        section = 5;
-      }
-      _time[int.parse(tmp[0]) + 1] = section;
-    }
-  }
+        room = json['room'] {}
 
   @override
   String toString() {
@@ -46,7 +27,7 @@ class Course {
   }
 }
 
-Future<void> fetchCourses(Callback<List<Course>> courseCallback) async {
+Future<void> fetchCourses(Callback<List<List<Course>>> courseCallback) async {
   courseCallback.onStart();
   final auth = await AuthManager.getInstance();
   final token = await auth.fetchToken();
@@ -69,11 +50,28 @@ Future<void> fetchCourses(Callback<List<Course>> courseCallback) async {
       if (body['code'] != 201)
         courseCallback.onFailed(NetworkCode);
       else {
-        var courseList = <Course>[];
+        var courses = List<List<Course>>(7);
+        for (int i = 0; i < 7; i++) courses[i] = List<Course>(5);
         for (var data in body['data']) {
-          courseList.add(Course.fromJson(data));
+          var time = data['time'];
+          for (var tmp in time) {
+            int section;
+            final t = int.parse(tmp[1]);
+            if (t < 2) {
+              section = 0;
+            } else if (t < 4) {
+              section = 1;
+            } else if (t < 6) {
+              section = 2;
+            } else if (t < 8) {
+              section = 3;
+            } else {
+              section = 4;
+            }
+            courses[int.parse(tmp[0])][section] = Course.fromJson(data);
+          }
         }
-        courseCallback.onSuccess(courseList);
+        courseCallback.onSuccess(courses);
       }
     }
   } on SocketException catch (_) {} finally {
