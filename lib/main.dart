@@ -2,7 +2,11 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'routes.dart';
+import 'package:flutter/services.dart';
+
 main() {
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MyApp());
 }
 
@@ -13,6 +17,8 @@ class MyApp extends StatelessWidget {
       title: 'UESTC',
       theme: themeData,
       routes: routes,
+      debugShowCheckedModeBanner: false,
+//      showPerformanceOverlay: true,
     );
   }
 }

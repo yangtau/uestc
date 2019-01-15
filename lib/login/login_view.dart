@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
-import 'login_contract.dart';
-import 'login_presenter.dart';
 import 'package:uestc/theme.dart';
+import 'package:uestc/data/auth.dart';
+import 'package:uestc/data/net.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -17,31 +17,41 @@ class LoginView extends StatefulWidget {
   State<StatefulWidget> createState() => LoginViewState();
 }
 
-class LoginViewState extends State<LoginView> implements View {
+class LoginViewState extends State<LoginView> implements Callback<String> {
   var _isLoading = false;
   var _inputEnabled = true;
-  var _isLogged = true;
-  Presenter _presenter;
+  bool _isLogged = true;
 
   final _passwordController = TextEditingController();
   final _idController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // BuildContext _context;
-
   @override
   void dispose() {
     _passwordController.dispose();
     _idController.dispose();
-    _presenter.unsubscribe();
     super.dispose();
   }
 
   @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  _init() async {
+    _isLogged = await AuthManager.isLogged();
+    if (_isLogged) {
+      AuthManager.fetchToken().then((s) => toHomePage());
+    } else
+      setState(() {
+        _isLogged = false;
+      });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // _context = context;
-    if (_presenter == null) setPresenter(LoginPresenter(this));
     return Scaffold(
       key: _scaffoldKey,
       appBar: null,
@@ -52,28 +62,51 @@ class LoginViewState extends State<LoginView> implements View {
               fit: BoxFit.cover),
         ),
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: normalPadding, right: normalPadding),
+          padding: const EdgeInsets.all(20),
           child: Center(
-            child: _isLogged
-                ? _buildWelcome()
-                : ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.all(normalPadding),
-                        child: _buildForm(),
-                        height: buttonHeight * 3 + normalPadding * 8,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100.withOpacity(0.4),
-                          borderRadius:
-                              BorderRadius.circular(normalBorderRadius),
-                        ),
-                      ),
-                    ),
-                  ),
+            child: _isLogged ? _buildWelcome() : _buildLoginView(),
           ),
         ),
+      ),
+    );
+  }
+
+  _onPress() {
+    AuthManager.login(
+        LoginMsg(_idController.text, _passwordController.text), this);
+  }
+
+  void hideLoading() {
+    setState(() {
+      _isLoading = false;
+      _inputEnabled = true;
+    });
+  }
+
+  void showError(String msg) {
+    _passwordController.clear();
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void showLoading() {
+    setState(() {
+      _isLoading = true;
+      _inputEnabled = false;
+    });
+  }
+
+  void toHomePage() {
+    Navigator.of(_scaffoldKey.currentContext).pushReplacementNamed('/home');
+  }
+
+  Widget _buildLoginView() {
+    return Container(
+      padding: EdgeInsets.all(normalPadding),
+      child: _buildForm(),
+      height: buttonHeight * 3 + normalPadding * 8,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(normalBorderRadius),
       ),
     );
   }
@@ -111,8 +144,8 @@ class LoginViewState extends State<LoginView> implements View {
               child: TextField(
                 controller: _idController,
                 decoration: InputDecoration(
-                  labelText: 'Student ID',
-                ),
+                    labelText: 'Student ID',
+                    labelStyle: TextStyle(color: Colors.black87)),
                 enabled: _inputEnabled,
                 keyboardType: TextInputType.numberWithOptions(),
               ),
@@ -125,81 +158,66 @@ class LoginViewState extends State<LoginView> implements View {
               child: TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  enabled: _inputEnabled,
-                ),
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.black87)),
+                enabled: _inputEnabled,
+                keyboardType: TextInputType.number,
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(normalPadding),
             child: _isLoading
-                ? CircularProgressIndicator()
+                ? CircularProgressIndicator(
+                backgroundColor: Colors.black87,
+                strokeWidth: 2.0,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+            )
                 : OutlineButton(
-                    onPressed: _onPress,
-                    child: new Text("LOGIN"),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    highlightedBorderColor: Theme.of(context).primaryColor,
-                  ),
+              onPressed: _onPress,
+              child: new Text("LOGIN"),
+              borderSide: BorderSide(
+                color: Colors.black87,
+              ),
+              highlightedBorderColor: Colors.black87,
+            ),
           ),
         ],
       ),
     );
   }
 
-  _onPress() {
-    _presenter.login(_idController.text, _passwordController.text);
+  @override
+  void onFailed(int errorCode) {
+    switch (errorCode) {
+      case NetworkCode:
+        showError(
+            'Check the network, or there is something wrong with the server');
+        break;
+      case ValidationCode:
+        showError('Invalid ID or password.');
+        break;
+      case PasswordCode:
+        showError('Wrong ID or password.');
+        break;
+      default:
+        showError('I don\'t know what\'s going wrong:(.');
+        break;
+    }
   }
 
   @override
-  void hideLoading() {
-    setState(() {
-      _isLoading = false;
-      _inputEnabled = true;
-    });
+  void onFinish() {
+    hideLoading();
   }
 
   @override
-  Future<void> setPresenter(Presenter presenter) async {
-    _presenter = presenter;
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    //  await Future.delayed(Duration(milliseconds: 10), () =>_presenter.subscribe());
-    _presenter.subscribe();
+  void onStart() {
+    showLoading();
   }
 
   @override
-  void showError(String msg) {
-    _passwordController.clear();
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(msg)));
-  }
-
-  @override
-  void showLoading() {
-    setState(() {
-      _isLoading = true;
-      _inputEnabled = false;
-    });
-  }
-
-  @override
-  void toHomePage() {
-    Navigator.of(_scaffoldKey.currentContext).pushReplacementNamed('/home');
-  }
-
-  @override
-  void showLoginView() {
-    setState(() {
-      _isLogged = false;
-    });
-  }
-
-  @override
-  void showWelcomeView() {
-    setState(() {
-      _isLogged = true;
-    });
+  void onSuccess(String t) {
+    if ((t ?? '').isNotEmpty) toHomePage();
   }
 }

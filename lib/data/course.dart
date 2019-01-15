@@ -27,30 +27,27 @@ class Course {
   }
 }
 
-Future<void> fetchCourses(Callback<List<List<Course>>> courseCallback) async {
-  courseCallback.onStart();
-  final auth = await AuthManager.getInstance();
-  final token = await auth.fetchToken();
+Future<List<List<Course>>> fetchCourses() async {
+  var courses = List<List<Course>>(7);
+  final token = await AuthManager.fetchToken();
   if (token.isEmpty) {
-    courseCallback.onFailed(NoTokenCode);
-    courseCallback.onFinish();
-    return;
+//    return courses;
   }
   var header = {
     'Authorization': 'Bearer ' + token,
   };
   var postBody = {'year': '2018', 'semester': '2'};
+//  TODO: add data
   try {
     var response =
         await http.post(API.courseUrl, headers: header, body: postBody);
     if (response.statusCode != 200) {
-      courseCallback.onFailed(NetworkCode);
+//      courseCallback.onFailed(NetworkCode);
     } else {
       final body = json.decode(response.body);
-      if (body['code'] != 201)
-        courseCallback.onFailed(NetworkCode);
-      else {
-        var courses = List<List<Course>>(7);
+      if (body['code'] != 201) {
+//          courseCallback.onFailed(NetworkCode);
+      } else {
         for (int i = 0; i < 7; i++) courses[i] = List<Course>(5);
         for (var data in body['data']) {
           var time = data['time'];
@@ -71,10 +68,11 @@ Future<void> fetchCourses(Callback<List<List<Course>>> courseCallback) async {
             courses[int.parse(tmp[0])][section] = Course.fromJson(data);
           }
         }
-        courseCallback.onSuccess(courses);
+//        courseCallback.onSuccess(courses);
       }
     }
   } on SocketException catch (_) {} finally {
-    courseCallback.onFinish();
+//    courseCallback.onFinish();
   }
+  return courses;
 }

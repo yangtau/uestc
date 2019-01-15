@@ -1,17 +1,12 @@
 // Created by Tau on 2019/1/11
 import 'package:flutter/material.dart';
-import 'course_contract.dart';
 import 'package:uestc/data/course.dart';
 import 'widgets.dart';
-import 'course_presenter.dart';
 
 class CourseView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('course'),),
-      body: CourseTable(),
-    );
+    return CourseTable();
   }
 }
 
@@ -20,64 +15,45 @@ class CourseTable extends StatefulWidget {
   State createState() => CourseTableState();
 }
 
-class CourseTableState extends State<CourseTable> implements View {
-  Presenter _presenter;
-  bool _showCourses = false;
-  List<List<Course>> _courses;
+class CourseTableState extends State<CourseTable> {
+  Future<List<List<Course>>> _courses;
+
+  CourseTableState() {
+    _courses = fetchCourses();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_presenter == null) setPresenter(CoursePresenter(this));
-    return _showCourses
-        ? _buildTable(_courses)
-        : Center(
-            child: Text('hello'),
-          );
+    return _tableBuilder();
   }
 
-  @override
-  void dispose() {
-    _presenter.unsubscribe();
-    super.dispose();
-  }
-
-  Widget _buildTable(List<List<Course>> courses) {
-    var tableColumns = List<Column>(7);
-    for (int i = 0; i < 7; i++) {
-      var cards = List<Widget>(5);
-      for (int j = 0; j < 5; j++) {
-        if (courses[i][j] != null)
-          cards[j] = CourseCard(courses[i][j]);
-        else
-          cards[j] = SizedBox(
-            width: 120,
-            height: 120,
-          );
-      }
-      tableColumns[i] = Column(
-        children: cards,
-      );
-    }
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      children: tableColumns,
+  FutureBuilder<List<List<Course>>> _tableBuilder() {
+    return FutureBuilder<List<List<Course>>>(
+      future: _courses,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return _buildTable(snapshot.data);
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        return Center(
+          child: CircularProgressIndicator(
+            backgroundColor: Colors.black87,
+            strokeWidth: 2.0,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+          ),
+        );
+      },
     );
   }
 
-  @override
-  Future<void> setPresenter(Presenter presenter) async {
-    _presenter = presenter;
-    await _presenter.subscribe();
-  }
-
-  @override
-  void showRefreshing() {}
-
-  @override
-  void showCourseTable(List<List<Course>> courses) {
-    _courses = courses;
-    setState(() {
-      _showCourses = true;
-    });
+  GridView _buildTable(List<List<Course>> courses) {
+    return GridView.count(
+      padding: EdgeInsets.only(left: 4.0),
+      crossAxisCount: 5,
+      scrollDirection: Axis.horizontal,
+      children:
+          courses.reduce((a, b) => a + b).map((c) => CourseCard(c)).toList(),//TODO :if a or b is null
+    );
   }
 }

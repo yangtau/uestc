@@ -19,35 +19,28 @@ typedef isLoggedCallback = void Function(bool isLogged);
 class AuthManager {
   static const _idKey = 'id_key'; //string
   static const _passwordKey = 'password_key'; //string
-  String _token;
-  SharedPreferences _prefs;
-  String _id, _password;
+  static String _token;
+  static SharedPreferences _prefs;
+  static String _id, _password;
 
-  AuthManager._internal() ;
-  _init() async {
-    _prefs = await SharedPreferences.getInstance();
-    _token = '';
-    _id = _tokenManager._prefs.getString(_idKey) ?? '';
-    _password = _prefs.getString(_passwordKey) ?? '';
-  }
+  AuthManager._internal();
 
-  static AuthManager _tokenManager;
-
-  static Future<AuthManager> getInstance() async {
-    if (_tokenManager == null) {
-      _tokenManager = AuthManager._internal();
-      // await _tokenManager._init();
+  static _init() async {
+    if (_prefs == null) {
+      _prefs = await SharedPreferences.getInstance();
+      _token = '';
+      _id = _prefs.getString(_idKey) ?? '';
+      _password = _prefs.getString(_passwordKey) ?? '';
     }
-    return _tokenManager;
   }
 
-  Future<bool> isLogged() async {
+  static Future<bool> isLogged() async {
     if (_prefs == null) await _init();
     return _id.isNotEmpty && _password.isNotEmpty;
   }
 
   /// call only if isLogged return true
-  Future<String> fetchToken() async {
+  static Future<String> fetchToken() async {
     if (_prefs == null) await _init();
     if (_token.isNotEmpty) return _token;
     if (_id.isEmpty || _password.isEmpty)
@@ -64,7 +57,7 @@ class AuthManager {
   }
 
   ///save login msg and token to local disk
-  Future<void> login(LoginMsg loginMsg, Callback<String> tokenCallback) async {
+  static Future<void> login(LoginMsg loginMsg, Callback<String> tokenCallback) async {
     tokenCallback.onStart();
     if (_prefs == null) await _init();
     try {
