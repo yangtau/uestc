@@ -1,24 +1,24 @@
 // Created by Tau on 2019/1/11
 import 'package:flutter/material.dart';
 import 'package:uestc/data/course.dart';
-import 'widgets.dart';
+import 'course_widgets.dart';
 
-class CourseView extends StatelessWidget {
+//class CourseView extends StatelessWidget {
+//  @override
+//  Widget build(BuildContext context) {
+//    return CourseTable();
+//  }
+//}
+
+class CourseView extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return CourseTable();
-  }
+  State createState() => CourseViewState();
 }
 
-class CourseTable extends StatefulWidget {
-  @override
-  State createState() => CourseTableState();
-}
-
-class CourseTableState extends State<CourseTable> {
+class CourseViewState extends State<CourseView> {
   Future<List<List<Course>>> _courses;
 
-  CourseTableState() {
+  CourseViewState() {
     _courses = fetchCourses();
   }
 
@@ -49,8 +49,9 @@ class CourseTableState extends State<CourseTable> {
 
   GridView _buildTable(List<List<Course>> courses) {
     return GridView.count(
-      padding: EdgeInsets.only(left: 4.0),
+      padding: EdgeInsets.all(4.0),
       crossAxisCount: 5,
+//      maxCrossAxisExtent: 150,
       scrollDirection: Axis.horizontal,
       children:
           courses.reduce((a, b) => a + b).map((c) => CourseCard(c)).toList(),//TODO :if a or b is null

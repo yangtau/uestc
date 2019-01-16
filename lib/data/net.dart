@@ -14,6 +14,7 @@ class API {
   static const loginUrl = 'https://uestc.ga/api/user/login'; //post
   static const profileUrl = 'https://uestc.ga/api/user/profile'; //get
   static const courseUrl = 'https://uestc.ga/api/user/course'; //post
+  static const gradeUrl = 'https://uestc.ga/api/user/grade'; //post and get
 }
 
 const NoIdeaCode = -2; //:)

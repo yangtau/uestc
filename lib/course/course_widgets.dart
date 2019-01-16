@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:uestc/theme.dart';
 
 class CourseCard extends StatelessWidget {
-  final Course _course;
+  final Course course;
 
-  CourseCard(this._course);
+  CourseCard(this.course);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
-      child: _course == null
+      child: course == null
           ? SizedBox()
           : Container(
               padding: EdgeInsets.all(4.0),
@@ -21,8 +21,8 @@ class CourseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   buildTitleText(),
-                  buildIconText(Icons.location_on, _course.room),
-                  buildIconText(Icons.person, _course.teacher),
+                  buildIconText(Icons.location_on, course.room),
+                  buildIconText(Icons.person, course.teacher),
                 ],
               ),
               decoration: BoxDecoration(
@@ -57,7 +57,7 @@ class CourseCard extends StatelessWidget {
   Container buildTitleText() {
     return Container(
       child: Text(
-        _course.name,
+        course.name,
         style: TextStyles.CardTile,
         maxLines: 3,
       ),

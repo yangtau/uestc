@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uestc/course/course_view.dart';
 import 'package:uestc/theme.dart';
 import 'package:flutter/services.dart';
+import 'package:uestc/grade/grade_view.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -28,16 +29,13 @@ class _Item {
 }
 
 class HomeViewState extends State<HomeView> {
-  String _title = 'Course';
-  int _seletedId = 0;
+  int _selectedId = 0;
 
   final items = <_Item>[
     _Item('Course', 0, Icons.date_range),
     _Item('Exam', 1, Icons.local_library),
     _Item('Grade', 2, Icons.description)
   ];
-
-//  final GlobalKey<Drawer> drawerKey = GlobalKey<Drawer>();
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +45,17 @@ class HomeViewState extends State<HomeView> {
       drawer: Drawer(
         child: _buildDrawer(),
       ),
-      body: CourseTable(),
+      body: _buildBody(),
     );
+  }
+
+  _buildBody() {
+    switch (_selectedId) {
+      case 0:
+        return CourseView();
+      case 2:
+        return GradeView();
+    }
   }
 
   ListView _buildDrawer() {
@@ -77,33 +84,34 @@ class HomeViewState extends State<HomeView> {
                   child: Icon(
                     item.icon,
                     size: 20,
-                    color: _seletedId == item.id
+                    color: _selectedId == item.id
                         ? Colors.black87
                         : Colors.black54,
                   ),
                 ),
                 Text(
                   item.title,
-                  style:  TextStyle(
-                      color: _seletedId == item.id
-                          ? Colors.black87
-                          : Colors.black54,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1),
+                  style: TextStyle(
+                    fontFamily: 'Merri',
+                    color: _selectedId == item.id
+                        ? Colors.black87
+                        : Colors.black54,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
             onTap: () {
-              setState(() => _seletedId = item.id);
+              setState(() => _selectedId = item.id);
               Navigator.of(context).pop();
             },
             borderRadius: BorderRadius.horizontal(right: Radius.circular(50.0)),
           ),
           decoration: BoxDecoration(
               border: Border.all(
-                color: _seletedId == item.id
-                    ? Colors.grey[400]
+                color: _selectedId == item.id
+                    ? Colors.grey[500]
                     : Colors.transparent,
                 width: 1.2,
               ),
@@ -139,13 +147,26 @@ class HomeViewState extends State<HomeView> {
   AppBar _buildAppBar(double statusBarHeight) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      title: Text('$_title', style: TextStyles.AppbarTitle),
+      title: Text(items[_selectedId].title, style: TextStyles.AppbarTitle),
       centerTitle: true,
       brightness: Brightness.light,
       iconTheme: IconThemeData(color: Colors.black87),
       elevation: 0,
+      actions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: InkWell(
+            borderRadius: BorderRadius.all(Radius.circular(40)),
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.expand_more),
+            ),
+          ),
+        )
+      ],
       flexibleSpace: Padding(
-        padding: EdgeInsets.only(left: 8.0, right: 8.0, top: statusBarHeight),
+        padding: EdgeInsets.only(top: statusBarHeight, right: 8, left: 8),
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[500]),

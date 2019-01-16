@@ -10,11 +10,11 @@ class Course {
   Map<int, int> _time; //key 1~7, value 1~5
   Map<int, int> get time => _time;
 
-  Course.fromJson(Map json)
-      : name = json['courseName'],
-        id = json['courseId'],
-        teacher = json['teacher'],
-        room = json['room'] {}
+  Course.fromJson(Map data)
+      : name = data['courseName'],
+        id = data['courseId'],
+        teacher = data['teacher'],
+        room = data['room'];
 
   @override
   String toString() {
@@ -29,6 +29,7 @@ class Course {
 
 Future<List<List<Course>>> fetchCourses() async {
   var courses = List<List<Course>>(7);
+  for (int i = 0; i < 7; i++) courses[i] = List<Course>(5);
   final token = await AuthManager.fetchToken();
   if (token.isEmpty) {
 //    return courses;
@@ -43,12 +44,18 @@ Future<List<List<Course>>> fetchCourses() async {
         await http.post(API.courseUrl, headers: header, body: postBody);
     if (response.statusCode != 200) {
 //      courseCallback.onFailed(NetworkCode);
+      print('here1');
     } else {
       final body = json.decode(response.body);
+      print(body);
       if (body['code'] != 201) {
 //          courseCallback.onFailed(NetworkCode);
+        if (body['code'] == 403) {
+          //todo
+        }
+        print('here2');
       } else {
-        for (int i = 0; i < 7; i++) courses[i] = List<Course>(5);
+        print('here3');
         for (var data in body['data']) {
           var time = data['time'];
           for (var tmp in time) {
@@ -68,11 +75,11 @@ Future<List<List<Course>>> fetchCourses() async {
             courses[int.parse(tmp[0])][section] = Course.fromJson(data);
           }
         }
-//        courseCallback.onSuccess(courses);
       }
     }
   } on SocketException catch (_) {} finally {
 //    courseCallback.onFinish();
   }
+  print(courses);
   return courses;
 }

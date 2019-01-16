@@ -39,6 +39,11 @@ flutter:
     - family: Viga
       fonts: 
         - asset: assets/fonts/Viga/Viga-Regular.ttf
+
+    - family: Merri
+      fonts:
+        - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Regular.ttf
+
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
