@@ -32,7 +32,7 @@ Future<List<List<Course>>> fetchCourses() async {
   for (int i = 0; i < 7; i++) courses[i] = List<Course>(5);
   final token = await AuthManager.fetchToken();
   if (token.isEmpty) {
-//    return courses;
+    return courses;
   }
   var header = {
     'Authorization': 'Bearer ' + token,
@@ -44,7 +44,6 @@ Future<List<List<Course>>> fetchCourses() async {
         await http.post(API.courseUrl, headers: header, body: postBody);
     if (response.statusCode != 200) {
 //      courseCallback.onFailed(NetworkCode);
-      print('here1');
     } else {
       final body = json.decode(response.body);
       print(body);
@@ -53,9 +52,7 @@ Future<List<List<Course>>> fetchCourses() async {
         if (body['code'] == 403) {
           //todo
         }
-        print('here2');
       } else {
-        print('here3');
         for (var data in body['data']) {
           var time = data['time'];
           for (var tmp in time) {

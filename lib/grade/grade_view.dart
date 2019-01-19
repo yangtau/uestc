@@ -4,6 +4,7 @@ import 'grade_widgets.dart';
 import 'package:uestc/theme.dart';
 import 'package:uestc/data/grade.dart';
 import 'package:uestc/custom_view.dart';
+import 'package:uestc/data/date.dart';
 
 class GradeView extends StatefulWidget {
   @override
@@ -11,17 +12,20 @@ class GradeView extends StatefulWidget {
 }
 
 class GradeViewState extends State<GradeView> {
-  Future<List<Grade>> _gradeFuture;
+//  Future<List<Grade>> _gradeFuture;
   bool _isExpanded = false;
+  Future<List<Semester>> _semestersFuture;
+  Semester _semester;
 
   GradeViewState() {
-    _gradeFuture = fetchGradeBySemester();
+    _semester = Semester.now;
+    _semestersFuture = fetchSemesters();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Grade>>(
-      future: _gradeFuture,
+      future: fetchGradeBySemester(semester: _semester),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView(
@@ -45,24 +49,39 @@ class GradeViewState extends State<GradeView> {
 
   _buildExpansion(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: BoxExpansionTile(
-        titleHeight: 60,
-        title: Container(
-          child: Text('helo'),
-        ),
-        children: <Widget>[
-          Container(
-            height: 66,
-            child: Text('helo'),
-          ),
-          Container(
-            height: 66,
-            child: Text('helo'),
-          ),
-        ],
-        initiallyExpanded: _isExpanded,
-      ),
-    );
+        padding: const EdgeInsets.all(4.0),
+        child: FutureBuilder<List<Semester>>(
+          future: _semestersFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData)
+              return BoxExpansionTile(
+                titleHeight: 60,
+                title: Container(
+                  child: Text(_semester.toString()),
+                ),
+                children: snapshot.data
+                    .map((s) => Container(
+                          height: 60,
+                          child: ListTile(
+                            title: Text(s.toString()),
+                            onTap: () {
+                              setState(() {
+                                _semester = s;
+                              });
+                            },
+                          ),
+                        ))
+                    .toList(),
+                initiallyExpanded: _isExpanded,
+              );
+            else
+              return BoxExpansionTile(
+                titleHeight: 60,
+                title: Container(
+                  child: Text(_semester.toString()),
+                ),
+              );
+          },
+        ));
   }
 }

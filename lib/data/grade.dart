@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'net.dart';
 import 'auth.dart';
+import 'date.dart';
 
 class Grade {
   final String name;
@@ -24,7 +25,7 @@ class Grade {
         gpa = data['gpa'];
 }
 
-Future<List<Grade>> fetchGradeBySemester() async {
+Future<List<Grade>> fetchGradeBySemester({Semester semester}) async {
   var grades = <Grade>[];
   final token = await AuthManager.fetchToken();
   if (token.isEmpty) {
@@ -33,7 +34,8 @@ Future<List<Grade>> fetchGradeBySemester() async {
   var header = {
     'Authorization': 'Bearer ' + token,
   };
-  var postBody = {'year': '2018', 'semester': '1'};
+  var postBody = semester == null ? Semester.now.json : semester.json;
+  print('here semester fetch grade: $postBody');
 //  TODO: add data
   try {
     var response =

@@ -2,6 +2,8 @@
 import 'net.dart' as net;
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'dart:convert';
+import 'auth.dart';
 
 class User {
   final String avatarUrl;
@@ -55,5 +57,23 @@ class User {
 }
 
 Future<User> fetchProfile() async {
-
+  User user;
+  final token = await AuthManager.fetchToken();
+  if (token.isEmpty) {
+//    return courses;
+  }
+  var header = {'Authorization': 'Bearer ' + token};
+  try {
+    final response = await http.get(net.API.profileUrl, headers: header);
+    if (response.statusCode != 200) {
+      //todo
+    } else {
+      final body = json.decode(response.body);
+      if (body['code'] != 200) {
+      } else {
+        user = User.fromJson(body['data']);
+      }
+    }
+  } on SocketException catch (_) {} finally {}
+  return user;
 }

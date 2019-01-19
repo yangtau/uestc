@@ -4,6 +4,7 @@ import 'package:uestc/course/course_view.dart';
 import 'package:uestc/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:uestc/grade/grade_view.dart';
+import 'package:uestc/data/profile.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -30,6 +31,10 @@ class _Item {
 
 class HomeViewState extends State<HomeView> {
   int _selectedId = 0;
+  Future<User> _userFuture;
+  HomeViewState() {
+    _userFuture = fetchProfile();
+  }
 
   final items = <_Item>[
     _Item('Course', 0, Icons.date_range),
@@ -132,13 +137,23 @@ class HomeViewState extends State<HomeView> {
           border: Border.all(color: Colors.grey[500]),
           borderRadius: BorderRadius.horizontal(right: Radius.circular(5.0)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text('杨韬', style: TextStyles.HeaderTitle), //TODO:
-            Text('2017020902022', style: TextStyles.HeaderInfo),
-          ],
+        child: FutureBuilder<User>(
+          future: _userFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(snapshot.data.stuName ?? '',
+                      style: TextStyles.HeaderTitle), //TODO:
+                  Text(snapshot.data.stuID ?? ' ',
+                      style: TextStyles.HeaderInfo),
+                ],
+              );
+            }
+            return Center();
+          },
         ),
       ),
     );
