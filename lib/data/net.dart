@@ -1,4 +1,6 @@
 // Created by Tau on 2019/1/1
+import 'package:connectivity/connectivity.dart';
+
 abstract class Callback<T> {
   void onStart();
 
@@ -30,4 +32,10 @@ class DateHeader {
   DateHeader(this.year, this.semester);
 
   Map getJson() => {'year': year, 'semester': semester};
+}
+
+Future<bool> isConnected() async {
+  print('isConnected');
+  var result = await Connectivity().checkConnectivity();
+  return result != ConnectivityResult.none;
 }

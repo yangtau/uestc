@@ -48,9 +48,8 @@ class TextStyles {
     fontSize: 20,
   );
   static const DrawerItem = const TextStyle(
-    color: Colors.black87,
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 1
-  );
+      color: Colors.black87,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 1);
 }

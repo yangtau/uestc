@@ -13,7 +13,8 @@ class BoxExpansionTile extends StatefulWidget {
       this.children = const <Widget>[],
       this.initiallyExpanded = false,
       this.boxDecoration,
-      this.titleHeight})
+      this.titleHeight,
+      this.padding})
       : assert(initiallyExpanded != null),
         super(key: key);
   final Widget title;
@@ -29,6 +30,8 @@ class BoxExpansionTile extends StatefulWidget {
   final BoxDecoration boxDecoration;
 
   final double titleHeight;
+
+  final EdgeInsetsGeometry padding;
 
   @override
   _BoxExpansionTileState createState() => _BoxExpansionTileState();
@@ -51,6 +54,7 @@ class _BoxExpansionTileState extends State<BoxExpansionTile>
   AnimationController _controller;
   Animation<double> _iconTurns;
   Animation<double> _heightFactor;
+
 //  Animation<Color> _headerColor;
 //  Animation<Color> _iconColor;
   Animation<Color> _backgroundColor;
@@ -114,7 +118,7 @@ class _BoxExpansionTileState extends State<BoxExpansionTile>
             child: InkWell(
               onTap: _handleTap,
               child: Container(
-                padding: EdgeInsets.all(8.0),
+                padding: widget.padding ?? EdgeInsets.all(8.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:uestc/data/course.dart';
 import 'course_widgets.dart';
+import 'package:uestc/custom_view.dart';
 
 //class CourseView extends StatelessWidget {
 //  @override
@@ -27,6 +28,7 @@ class CourseViewState extends State<CourseView> {
     return _tableBuilder();
   }
 
+
   FutureBuilder<List<List<Course>>> _tableBuilder() {
     return FutureBuilder<List<List<Course>>>(
       future: _courses,
@@ -49,12 +51,12 @@ class CourseViewState extends State<CourseView> {
 
   GridView _buildTable(List<List<Course>> courses) {
     return GridView.count(
-      padding: EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(0),
       crossAxisCount: 5,
-//      maxCrossAxisExtent: 150,
+      childAspectRatio: 1,
       scrollDirection: Axis.horizontal,
       children:
-          courses.reduce((a, b) => a + b).map((c) => CourseCard(c)).toList(),//TODO :if a or b is null
+          courses.reduce((a, b) => a + b).map((c) => CourseCard(c)).toList(),
     );
   }
 }

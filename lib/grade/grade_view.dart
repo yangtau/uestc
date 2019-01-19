@@ -25,7 +25,7 @@ class GradeViewState extends State<GradeView> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView(
-            padding: EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(4.0),
             children: <Widget>[_buildExpansion(context)] +
                 snapshot.data.map((g) => GradeCard(g)).toList(),
           );
@@ -52,9 +52,16 @@ class GradeViewState extends State<GradeView> {
           child: Text('helo'),
         ),
         children: <Widget>[
-          Text('helo'),
-          Text('helo'),
+          Container(
+            height: 66,
+            child: Text('helo'),
+          ),
+          Container(
+            height: 66,
+            child: Text('helo'),
+          ),
         ],
+        initiallyExpanded: _isExpanded,
       ),
     );
   }

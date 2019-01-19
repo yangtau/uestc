@@ -47,7 +47,7 @@ class CourseCard extends StatelessWidget {
           Text(
             s,
             style: TextStyles.CardInfo,
-            maxLines: 2,
+            maxLines: 1,
           ),
         ],
       ),
@@ -59,7 +59,7 @@ class CourseCard extends StatelessWidget {
       child: Text(
         course.name,
         style: TextStyles.CardTile,
-        maxLines: 3,
+        maxLines: 2,
       ),
     );
   }

@@ -40,9 +40,9 @@ class AuthManager {
   }
 
   /// call only if isLogged return true
-  static Future<String> fetchToken() async {
+  static Future<String> fetchToken({bool update = false}) async {
     if (_prefs == null) await _init();
-    if (_token.isNotEmpty) return _token;
+    if (_token.isNotEmpty && !update) return _token;
     if (_id.isEmpty || _password.isEmpty)
       throw Exception('id or password is empty');
     try {
@@ -57,7 +57,8 @@ class AuthManager {
   }
 
   ///save login msg and token to local disk
-  static Future<void> login(LoginMsg loginMsg, Callback<String> tokenCallback) async {
+  static Future<void> login(
+      LoginMsg loginMsg, Callback<String> tokenCallback) async {
     tokenCallback.onStart();
     if (_prefs == null) await _init();
     try {

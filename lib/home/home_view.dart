@@ -147,24 +147,36 @@ class HomeViewState extends State<HomeView> {
   AppBar _buildAppBar(double statusBarHeight) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      title: Text(items[_selectedId].title, style: TextStyles.AppbarTitle),
+      title: Text(
+        items[_selectedId].title,
+        style: TextStyles.AppbarTitle,
+      ),
       centerTitle: true,
       brightness: Brightness.light,
       iconTheme: IconThemeData(color: Colors.black87),
       elevation: 0,
-      actions: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: InkWell(
-            borderRadius: BorderRadius.all(Radius.circular(40)),
-            onTap: () {},
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(Icons.expand_more),
-            ),
-          ),
-        )
-      ],
+//      actions: <Widget>[
+//        Padding(
+//          padding: EdgeInsets.only(right: 20),
+//          child: Center(
+//            child: Text(
+//              '2018 fall',
+//              style: TextStyle(fontSize: 20, color: Colors.black87),
+//            ),
+//          ),
+//        ),
+//        Padding(
+//          padding: const EdgeInsets.only(right: 8.0),
+//          child: InkWell(
+//            borderRadius: BorderRadius.all(Radius.circular(40)),
+//            onTap: () {},
+//            child: Padding(
+//              padding: const EdgeInsets.all(8.0),
+//              child: Icon(Icons.expand_more),
+//            ),
+//          ),
+//        )
+//      ],
       flexibleSpace: Padding(
         padding: EdgeInsets.only(top: statusBarHeight, right: 8, left: 8),
         child: Container(

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:uestc/theme.dart';
 import 'package:uestc/data/auth.dart';
-import 'package:uestc/data/net.dart';
+import 'package:uestc/data/net.dart' as net;
 
 class LoginPage extends StatelessWidget {
   @override
@@ -17,7 +17,7 @@ class LoginView extends StatefulWidget {
   State<StatefulWidget> createState() => LoginViewState();
 }
 
-class LoginViewState extends State<LoginView> implements Callback<String> {
+class LoginViewState extends State<LoginView> implements net.Callback<String> {
   var _isLoading = false;
   var _inputEnabled = true;
   bool _isLogged = true;
@@ -43,11 +43,16 @@ class LoginViewState extends State<LoginView> implements Callback<String> {
   _init() async {
     _isLogged = await AuthManager.isLogged();
     if (_isLogged) {
-      AuthManager.fetchToken().then((s) => toHomePage());
-    } else
+      if (await net.isConnected() == false) {
+        print('here');
+        toHomePage();
+      } else
+        AuthManager.fetchToken().then((s) => toHomePage());
+    } else if (mounted) {
       setState(() {
         _isLogged = false;
       });
+    }
   }
 
   @override
@@ -169,18 +174,18 @@ class LoginViewState extends State<LoginView> implements Callback<String> {
             padding: const EdgeInsets.all(normalPadding),
             child: _isLoading
                 ? CircularProgressIndicator(
-                backgroundColor: Colors.black87,
-                strokeWidth: 2.0,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
-            )
+                    backgroundColor: Colors.black87,
+                    strokeWidth: 2.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+                  )
                 : OutlineButton(
-              onPressed: _onPress,
-              child: new Text("LOGIN"),
-              borderSide: BorderSide(
-                color: Colors.black87,
-              ),
-              highlightedBorderColor: Colors.black87,
-            ),
+                    onPressed: _onPress,
+                    child: new Text("LOGIN"),
+                    borderSide: BorderSide(
+                      color: Colors.black87,
+                    ),
+                    highlightedBorderColor: Colors.black87,
+                  ),
           ),
         ],
       ),
@@ -190,14 +195,14 @@ class LoginViewState extends State<LoginView> implements Callback<String> {
   @override
   void onFailed(int errorCode) {
     switch (errorCode) {
-      case NetworkCode:
+      case net.NetworkCode:
         showError(
             'Check the network, or there is something wrong with the server');
         break;
-      case ValidationCode:
+      case net.ValidationCode:
         showError('Invalid ID or password.');
         break;
-      case PasswordCode:
+      case net.PasswordCode:
         showError('Wrong ID or password.');
         break;
       default:
